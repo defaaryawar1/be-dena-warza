@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(uuid())
+  name        String
+  level       Int          @default(1)
+  experience  Int          @default(0)
+  nextLevel   Int          @default(100)
+  totalScore  Int          @default(0)
+  streakCount Int          @default(0)
+  achievements String[]    // Array of achievement IDs
+  gameHistories GameHistory[] // Relasi ke GameHistory
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model GameHistory {
+  id        Int      @id @default(autoincrement())
+  userId    String   // ID pengguna yang terkait dengan riwayat game
+  activity  String   // Aktivitas yang dilakukan (misalnya, "quizComplete", "dailyChallenge")
+  details   Json     // Detail aktivitas (misalnya, skor, tantangan, dll.)
+  timestamp DateTime @default(now()) // Waktu aktivitas
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade) // Relasi ke User
+}
+
+model Memory {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime
+  tags        String[]
+  media       Media[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Media {
+  id        String  @id @default(uuid())
+  type      String
+  url       String
+  memoryId  String
+  memory    Memory  @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+}
